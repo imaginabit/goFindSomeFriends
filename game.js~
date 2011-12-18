@@ -16,10 +16,10 @@ window.onload = function () {
 
     Crafty.sprite(celres, "sprites.png", {
         player: [0, 0],
-        mood0: [5, 0],
+        mood0: [7, 0],
         mood1: [6, 0],
-        mood3: [7, 0],
-        mood4: [8, 0],
+        mood3: [4, 0],
+        mood4: [5, 0],
         suelo0: [0, 1],
         suelo1: [1, 1],
         suelo2: [2, 1],
@@ -57,12 +57,13 @@ window.onload = function () {
 		var loaded=false;
 
 		Crafty.background("#000");
-		Crafty.e("2D, DOM, Text").attr({ w: 100, h: 20, x: 400-50, y: 470 })
+		console.log(h/5);
+		Crafty.e("2D, DOM, Text").attr({ w: w, h: 20, x: 0, y: Math.round((h/5)*4)	})
 				.text("Presents")
 				.css({ "text-align": "center" });
 
 		Crafty.e("2D, DOM, Image").image("logo.png")
-		.attr({w:256,h:256,x:400-128,y:celres});
+		.attr({w:256,h:256,x: w/2-256, y:-30});
 
 		change=false;
 
@@ -178,7 +179,7 @@ window.onload = function () {
 						if( this.y-celres-obj.y>0 ) this.y-=velocidad;
 						a = Crafty.randRange(0,1000);
 						//if (a<100)obj.mood_up(1);
-						if (a<1)obj.mood_up(2);//3
+						if (a<50)obj.mood_up(2);
 
 						//distancia entre vectores
 						dist = Math.floor(Math.sqrt(Math.pow(this.x-obj.x,2)+Math.pow(this.y-obj.y,2)));
@@ -258,7 +259,9 @@ window.onload = function () {
 
 		var time= Date.now();
 		var j = 0;
+		var stop = false;
 		Crafty.bind("EnterFrame",function(){
+
 			Crafty.viewport.x=  -player.x+(ancho*celres)/2;
 			player.barra.x= barra_initial.x -Crafty.viewport.x;
 			player.status.x= barra_initial.x -Crafty.viewport.x;
@@ -272,18 +275,27 @@ window.onload = function () {
 			player.status.y= barra_initial.y -Crafty.viewport.y;
 			helptext.y= helptext_ini.y-Crafty.viewport.y;
 
-			if (time+1000<Date.now()){
-				helptext.text(texts[Crafty.randRange(0,texts.length-1)] +
+			if (time+1000<Date.now() && !stop){
+				//console.log(stop);
+				//Crafty.randRange(0,texts.length-1)
+				helptext.text(texts[0] +
 						" &nbsp; &nbsp; "+player.friends+
 						" &nbsp; &nbsp; "+score
 						);
 				if (player.friends==0)
 					player.mood_down(5);
-				score+=1;
-				console.log(Math.ceil(5*player.status.w/player.barra.w));
-				player.faceChange(Math.ceil(5*player.status.w/player.barra.w));
 
-				time= Date.now();
+				if (!player.die){
+					score+=1;
+					player.faceChange(Math.floor(5*player.status.w/player.barra.w));
+					time= Date.now();
+				} else {
+					player.face.destroy();
+					player.destroy();
+
+					stop=true;
+					console.log("muriste");
+				}
 			}
 
 		});
@@ -308,8 +320,10 @@ window.onload = function () {
 		mood_up:function(num){
 			num = num || 10;
 			if (this.status.w < this.barra.w){
-				if (this.status.w+num>this.barra_initial.w)
+				if (this.status.w+num>this.barra_initial.w){
 					this.status.w = this.barra_initial.w;
+					this.die=true;
+					}
 				else
 					this.status.w +=num;
 				//Crafty.audio.play("auNewFriend");
@@ -318,12 +332,16 @@ window.onload = function () {
 		mood_down:function(num){
 			num = num || 10;
 			if (this.status.w > 0){
-				if (this.status.w-num<0) this.status.x = 0
+				if (this.status.w-num<0){
+				 this.status.x = 0
+				 this.die=true;
+			 	}
 				else this.status.w -=num;
 				//Crafty.audio.play("auDelFriend");
 				//auDel.play();
 			}
-		}
+		},
+		die: false
 	});
 
     Crafty.c('Ape', {
@@ -360,10 +378,19 @@ window.onload = function () {
     	init: function(){
 
 		    //this.requires("")
-		   	at = {x: this.x,y: this.y,z: this.z+1,w : celres, h:celres};
 
-		   	cara=0;
-    		this.face= Crafty.e("2D,DOM, mood"+cara ).attr(at);
+		   	console.log("----moodface: "+ this.barra.w/this.status.w);
+		   	at = {
+		   			x: this.x,
+		   			y: this.y,
+		   			z: this.z+1,
+		   			w: celres,
+		   			h: celres
+   			};
+
+		   	this.cara=2;
+    		this.face= Crafty.e("2D,DOM, SpriteAnimation, mood"+this.cara ).attr(at);
+
 
 			this.bind("Change",function(){
 				this.face.x = this.x;
@@ -371,17 +398,24 @@ window.onload = function () {
 				this.face.z = this.z+1;
 				this.face._flipX = this._flipX;
 			});
-			/*
-			this.face.animate("cface0", 6, 0, 1);
-			this.face.animate("cface1", 7, 0, 1);
+/*
+			this.face.animate("cface1", 6, 0, 1);
+			this.face.animate("cface2", 7, 0, 1);
 			this.face.animate("cface3", 4, 0, 1);
-			this.face.animate("cface4", 5, 0, 1);
-			*/
+			this.face.animate("cface4", 5, 0, 1);*/
     		return this;
     	},
     	faceChange: function(n) {
     		//this.face.animate("cface"+n);
-    		console.log('..');
+    		if (n!=this.cara){
+    			this.face.removeComponent("mood0");
+    			this.face.removeComponent("mood1");
+    			this.face.removeComponent("mood3");
+    			this.face.removeComponent("mood4");
+    			if (n!=2)this.face.addComponent("mood"+n);
+    			console.log("faceChange "+n);
+    			this.cara=n;
+			}
     	}
 
     });
