@@ -381,7 +381,6 @@ window.onload = function () {
     	},
     	faceChange: function(n) {
     		//this.face.animate("cface"+n);
-    		console.log('..');
     	}
 
     });

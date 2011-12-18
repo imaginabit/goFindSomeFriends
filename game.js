@@ -280,7 +280,7 @@ window.onload = function () {
 				if (player.friends==0)
 					player.mood_down(5);
 				score+=1;
-
+				console.log(Math.ceil(5*player.status.w/player.barra.w));
 				player.faceChange(Math.ceil(5*player.status.w/player.barra.w));
 
 				time= Date.now();
@@ -360,13 +360,10 @@ window.onload = function () {
     	init: function(){
 
 		    //this.requires("")
-
-		   	console.log("----moodface: "+ this.barra.w/this.status.w);
 		   	at = {x: this.x,y: this.y,z: this.z+1,w : celres, h:celres};
 
-		   	cara=1;
-    		this.face= Crafty.e("2D,DOM, SpriteAnimation, mood"+cara ).attr(at);
-
+		   	cara=0;
+    		this.face= Crafty.e("2D,DOM, mood"+cara ).attr(at);
 
 			this.bind("Change",function(){
 				this.face.x = this.x;
@@ -374,16 +371,17 @@ window.onload = function () {
 				this.face.z = this.z+1;
 				this.face._flipX = this._flipX;
 			});
-/*
-			this.face.animate("cface1", 6, 0, 1);
-			this.face.animate("cface2", 7, 0, 1);
+			/*
+			this.face.animate("cface0", 6, 0, 1);
+			this.face.animate("cface1", 7, 0, 1);
 			this.face.animate("cface3", 4, 0, 1);
-			this.face.animate("cface4", 5, 0, 1);*/
+			this.face.animate("cface4", 5, 0, 1);
+			*/
     		return this;
     	},
     	faceChange: function(n) {
     		//this.face.animate("cface"+n);
-
+    		console.log('..');
     	}
 
     });
