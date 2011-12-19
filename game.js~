@@ -7,8 +7,8 @@ window.onload = function () {
 	ancho= 16;
 	alto = 16;
 	celres= 32;
-	altomundo=30
-	anchomundo=30;
+	altomundo=20
+	anchomundo=20;
 	w= celres*ancho;
 	h=celres*alto
     Crafty.init(w, h);
@@ -57,7 +57,7 @@ window.onload = function () {
 		var loaded=false;
 
 		Crafty.background("#000");
-		console.log(h/5);
+		//console.log(h/5);
 		Crafty.e("2D, DOM, Text").attr({ w: w, h: 20, x: 0, y: Math.round((h/5)*4)	})
 				.text("Presents")
 				.css({ "text-align": "center" });
@@ -69,7 +69,7 @@ window.onload = function () {
 
 		Crafty.bind("EnterFrame", function(){
 			if (loaded==true && time+2000<Date.now() && !change){
-				console.log(time);
+				//console.log(time);
 				change= true;
 				Crafty.scene("game");
 			}
@@ -85,7 +85,7 @@ window.onload = function () {
 				d=Math.floor(i/10);
 				e = i%10;
 				Crafty.background("#"+d+e+d+e+d+e);
-				console.log("in"+ (time-Date.now()) + "#"+d+e+d+e+d+e +" i:"+i  );
+				//console.log("in"+ (time-Date.now()) + "#"+d+e+d+e+d+e +" i:"+i  );
 				i++;
 				if (i==100)i=0;
 				time = Date.now();
@@ -156,17 +156,18 @@ window.onload = function () {
 		},
 		follow: function(obj){
 			var time = Date.now();
-			if (!this.isFollow){
+
+			if (!this.isFollow && typeof(obj) != "undefined"){
 				this.isFollow=true;
 				obj.friends+=1;
 				obj.mood_up();
 				this.bind("EnterFrame",function(){
-					if (time+100<Date.now()){
+					if (time+500<Date.now()){
 						var from= {x:0,y:0};
 						from.x = this.x;
 						from.y = this.y
 
-						velocidad= Crafty.randRange(1,4);
+						velocidad= Crafty.randRange(1,10);
 						if( this.x+celres-obj.x<0 ){
 						 this.x+=velocidad;
 						 this._flipX = false;
@@ -189,6 +190,12 @@ window.onload = function () {
 							obj.mood_down();
 							this.isFollow=false;
 							//console.log("unbind "+dist+" friends "+obj.friends);
+						}
+
+						console.log("die:"+obj.die);
+						if (obj.die){
+
+							this.unbind("EnterFrame");
 						}
 
 						if(this.hit('solid')){
@@ -219,7 +226,7 @@ window.onload = function () {
     			h: celres,
     			z:1000
     		})
-    		.rightControls(1).Ape()
+    		.rightControls(2).Ape()
 			.onHit("friend", function(f) {
 				//friend start follow player
 				//f.obj.folow(this);
@@ -319,15 +326,13 @@ window.onload = function () {
 		},
 		mood_up:function(num){
 			num = num || 10;
-			if (this.status.w < this.barra.w){
-				if (this.status.w+num>this.barra_initial.w){
-					this.status.w = this.barra_initial.w;
-					this.die=true;
-					}
-				else
-					this.status.w +=num;
-				//Crafty.audio.play("auNewFriend");
-			}
+			if (this.status.w+num >= this.barra_initial.w){
+				this.status.w = this.barra_initial.w;
+				this.die=true;
+				}
+			else
+				this.status.w +=num;
+			Crafty.audio.play("auNewFriend");
 		},
 		mood_down:function(num){
 			num = num || 10;
@@ -337,7 +342,7 @@ window.onload = function () {
 				 this.die=true;
 			 	}
 				else this.status.w -=num;
-				//Crafty.audio.play("auDelFriend");
+				Crafty.audio.play("auDelFriend");
 				//auDel.play();
 			}
 		},
@@ -379,7 +384,7 @@ window.onload = function () {
 
 		    //this.requires("")
 
-		   	console.log("----moodface: "+ this.barra.w/this.status.w);
+		   	//console.log("----moodface: "+ this.barra.w/this.status.w);
 		   	at = {
 		   			x: this.x,
 		   			y: this.y,
@@ -413,7 +418,7 @@ window.onload = function () {
     			this.face.removeComponent("mood3");
     			this.face.removeComponent("mood4");
     			if (n!=2)this.face.addComponent("mood"+n);
-    			console.log("faceChange "+n);
+    			//console.log("faceChange "+n);
     			this.cara=n;
 			}
     	}
